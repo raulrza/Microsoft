@@ -1,6 +1,5 @@
 #A CSV with email addresses in a field named "EMAIL ADDRESS" is needed as input
 
-
 # Set the path to the CSV input file with Exchange user info including EMAIL ADDRESS
 $MAPIUsersCSVPath = “C:\Exchange\UserEmails.csv”
 
@@ -8,7 +7,8 @@ $MAPIUsersCSVPath = “C:\Exchange\UserEmails.csv”
 $MAPIUserAliasPath = "C:\Exchange\MAPIUserAliases.csv"
 
 # Set the path for the output file that will log the results of MAPI settings per user
-$MAPIHttpResults = “C:\Exchange\MAPIHttpResults.txt”
+$MAPIHttpResults = “C:\Exchange\MAPIHttpResults.txt”
+
 # Object used to store all information imported from CSV
 $ExchangeUserInfo = Import-CSV $MAPIUsersCSVPath
 
