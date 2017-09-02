@@ -1,28 +1,28 @@
-﻿<#
-	Author: Raul Bringas <rbring01@gmail.com>
-    Date: 8/31/2017
-    Version: 1.0	
+<#
+Author: Raul Bringas <rbring01@gmail.com>
+Date: 8/31/2017
+Version: 1.0	
 	
-	.SYNOPSIS
-	Windows pre-configuration script used to collect paramters to automatically configure the 
-	server during post-configuration.
+.SYNOPSIS
+Windows pre-configuration script used to collect paramters to automatically configure the 
+server during post-configuration.
 	
-	.DESCRIPTION
-    Pre-configuration script to be used for Windows Server provisioning.  Will either take input
-    from the console in Interactive mode, or directly from a text file for automated
-    multi-server runs.  The SVR-Preconf.txt file will be populated with the following fields,
-    "ServerName, IP".  These values will be used to create a CSV file named after the server name
-    in "C:\Postconf".  The CSV file will contain all of the following values needed
-    by postconf: "ServerName, IP" NM, GW, DNS1, DNS2, Description".
+.DESCRIPTION
+Pre-configuration script to be used for Windows Server provisioning.  Will either take input
+from the console in Interactive mode, or directly from a text file for automated
+multi-server runs.  The SVR-Preconf.txt file will be populated with the following fields,
+"ServerName, IP".  These values will be used to create a CSV file named after the server name
+in "C:\Postconf".  The CSV file will contain all of the following values needed
+by postconf: "ServerName, IP" NM, GW, DNS1, DNS2, Description".
 
-    Preconf Task List:
-    1) Get a list of Server Names and IPs
-    2) Create computer account & admin account in AD using Server Name 
-    3) Create folder with Server Name in "C:\Postconf\ServerName"
-    4) Create ServerName-Postconf.txt file with postconf variables in "C:\Postconf\ServerName-Postconf.txt"
+Preconf Task List:
+1) Get a list of Server Names and IPs
+2) Create computer account & admin account in AD using Server Name 
+3) Create folder with Server Name in "C:\Postconf\ServerName"
+4) Create ServerName-Postconf.txt file with postconf variables in "C:\Postconf\ServerName-Postconf.txt"
 	
-	.NOTES
-	Input: 
+.NOTES
+Input: 
     Interactive - Directly from the user in interactive mode: ServerName and IP will be collected one at a time.
     Automated -   Will pull the values directly from "C:\Postconf\SVR-Preconf.txt" CSV file.
 
@@ -33,7 +33,7 @@
     "AppServer01","10.10.1.3"
     "ServerName","x.x.x.x"
 
-    Output:
+Output:
     This script will create a folder named after the Server Name that will contain a
     postconf.txt file in CSV format will all the pertinent variables for Postconf.	
 	
@@ -41,17 +41,15 @@
 
 Function ScriptMode($Run_Mode) {
 <#    
-	.SYNOPSIS – Determine whether the user wants to run Interactive or Automated mode.
+.SYNOPSIS – Determine whether the user wants to run Interactive or Automated mode.
 
-	.DESCRIPTION – Prompt the user for Interactive mode (collect input), or Automated mode (use C:\Postconf\SVR-Preconf.txt) 
-					as input.
+.DESCRIPTION – Prompt the user for Interactive mode (collect input), or Automated mode (use C:\Postconf\SVR-Preconf.txt) 
+		as input.
 					
-	.PARAMETER $Run_Mode - Either 'A' - Automated, or 'I' (any other key) - Interactive decides script run mode.
+.PARAMETER $Run_Mode - Either 'A' - Automated, or 'I' (any other key) - Interactive decides script run mode.
 #>
 
-	# Check if the script will be run interactively
-    
-
+# Check if the script will be run interactively    
     If ($Run_Mode -like "A"){         
             
         Try {$global:ServerOBJ = Import-Csv $global:PreconfTextFile}
@@ -69,11 +67,11 @@ Function ScriptMode($Run_Mode) {
 
 Function ValidateIP ($IP_Addr){
 <#    
-	.SYNOPSIS – Validate an IP address.
+.SYNOPSIS – Validate an IP address.
 
-	.DESCRIPTION – Compare the IP address entered by the user using regular expression $IPRegEx and return a valid IP.
+.DESCRIPTION – Compare the IP address entered by the user using regular expression $IPRegEx and return a valid IP.
 	
-	.PARAMETER $IP_Addr - IP Address provided by the user or SVR-Preconf.txt file.
+.PARAMETER $IP_Addr - IP Address provided by the user or SVR-Preconf.txt file.
 #>
 
     # Message for ValidateIP function
@@ -100,43 +98,44 @@ Function ValidateIP ($IP_Addr){
 
 Function CreateADAccounts ($PDC, $ServerName, $ServerOU, $AdminOU) {
 <#    
-	.SYNOPSIS – Create accounts in Active Directory
+.SYNOPSIS – Create accounts in Active Directory
 
-	.DESCRIPTION – Create a computer account for a server and a security group for local administrators.
+.DESCRIPTION – Create a computer account for a server and a security group for local administrators.
 	
-	.PARAMETER $PDC - Primary Domain Controller where accounts will be created.
-	.PARAMETER $ServerName - The name of the Server being provisioned.
-	.PARAMETER $ServerOU - Organizatinal Unit where the computer account will reside.
-	.PARAMETER $AdminOU - Organizatinal Unit where the security group for administrators will reside.
+.PARAMETER $PDC - Primary Domain Controller where accounts will be created.
+.PARAMETER $ServerName - The name of the Server being provisioned.
+.PARAMETER $ServerOU - Organizatinal Unit where the computer account will reside.
+.PARAMETER $AdminOU - Organizatinal Unit where the security group for administrators will reside.
 #>
+
 	# This is the name of a group you create in Active Directory and add to the server's "Administrators" group
 	$AdminGroup = "$ServerName Administrators"
-    $AdminDescription = "Members have local Administrator privileges to the $ServerName"
+	$AdminDescription = "Members have local Administrator privileges to the $ServerName"
 	    
-    "Server Name: $ServerName"
+	"Server Name: $ServerName"
 	"Server Admins Group Name: $AdminGroup"
-    "Desc.: $AdminDescription`n"
+	"Desc.: $AdminDescription`n"
 
 
 	# Create a computer account for the specified server in the $ServerOU 
-    "Creating Computer account..."
-    "New-ADComputer -Name $ServerName -SamAccountName $ServerName -Path $ServerOU`n"
-    Try {New-ADComputer -Name $ServerName -SamAccountName $ServerName -Path $ServerOU -Enabled $true}
-    Catch {Write-Host -ForegroundColor Red "ERROR: Creation of computer account failed!"}
+	"Creating Computer account..."
+	"New-ADComputer -Name $ServerName -SamAccountName $ServerName -Path $ServerOU`n"
+	Try {New-ADComputer -Name $ServerName -SamAccountName $ServerName -Path $ServerOU -Enabled $true}
+	Catch {Write-Host -ForegroundColor Red "ERROR: Creation of computer account failed!"}
 
 	# Create an admin account for the specified server in the $AdminOU
-    "Creating Server Admin account..."
+	"Creating Server Admin account..."
 	"New-ADGroup -GroupScope Global -Name $AdminGroup -Description $AdminDescription  -GroupCategory Security -Path $AdminOU -Server $PDC`n"
-    Try {New-ADGroup -GroupScope Global -Name $AdminGroup -Description $AdminDescription  -GroupCategory Security -Path $AdminOU -Server $PDC}
-    Catch {Write-Host -ForegroundColor Red "ERROR: Creation of Server Admin account failed!"}
+	Try {New-ADGroup -GroupScope Global -Name $AdminGroup -Description $AdminDescription  -GroupCategory Security -Path $AdminOU -Server $PDC}
+	Catch {Write-Host -ForegroundColor Red "ERROR: Creation of Server Admin account failed!"}
 
 }
 
 Function CollectPreconfInfo () {
  <#    
-	.SYNOPSIS – Collects Server information from the user interactively.
+.SYNOPSIS – Collects Server information from the user interactively.
 
-	.DESCRIPTION – When a user chooses Interactive mode, ServerName and IP are collected from the console.
+.DESCRIPTION – When a user chooses Interactive mode, ServerName and IP are collected from the console.
 #>
    
     # Prompt the user to enter a single server name and IP        
@@ -153,14 +152,14 @@ Function CollectPreconfInfo () {
 
 Function CreatePostconfFile ($Netmask, $DNS1, $DNS2, $PDC, $ServerOU, $AdminOU) {
 <#    
-	.SYNOPSIS – Create accounts in Active Directory
+.SYNOPSIS – Create accounts in Active Directory
 
-	.DESCRIPTION – Create a computer account for a server and a security group for local administrators.
+.DESCRIPTION – Create a computer account for a server and a security group for local administrators.
 	
-	.PARAMETER $PDC - Primary Domain Controller where accounts will be created.
-	.PARAMETER $ServerName - The name of the Server being provisioned.
-	.PARAMETER $ServerOU - Organizatinal Unit where the computer account will reside.
-	.PARAMETER $AdminOU - Organizatinal Unit where the security group for administrators will reside.
+.PARAMETER $PDC - Primary Domain Controller where accounts will be created.
+.PARAMETER $ServerName - The name of the Server being provisioned.
+.PARAMETER $ServerOU - Organizatinal Unit where the computer account will reside.
+.PARAMETER $AdminOU - Organizatinal Unit where the security group for administrators will reside.
 #>
 
     ForEach ($Server in $global:ServerOBJ) {
@@ -169,7 +168,7 @@ Function CreatePostconfFile ($Netmask, $DNS1, $DNS2, $PDC, $ServerOU, $AdminOU) 
         $ServerName = $Server.ServerName
         $IP = $Server.IP      
 
-        # Pre\Post conf directory, file location in SDIS
+        # Pre\Post conf directory, file location
         $PreconfDir = "C:\Postconf\$ServerName"
         New-Item $PreconfDir -ItemType Directory | Out-Null
 
@@ -208,9 +207,9 @@ Function CreatePostconfFile ($Netmask, $DNS1, $DNS2, $PDC, $ServerOU, $AdminOU) 
 
 Function ClearPreconfFile () {
 <#    
-	.SYNOPSIS – Resets the Preconf file.
+.SYNOPSIS – Resets the Preconf file.
 
-	.DESCRIPTION – Removes all ServerNames and IPs from SVR-Preconf.txt file for subsequent runs.
+.DESCRIPTION – Removes all ServerNames and IPs from SVR-Preconf.txt file for subsequent runs.
 #>   
     "ServerName,IP" > $global:PreconfTextFile
 
@@ -246,7 +245,6 @@ CreateADAccounts $PDC $ServerName $ServerOU $AdminOU
 # Set the computer description
 # CHANGE TO THE DESIRED SERVER DESCRIPTION
 $Description = "ENTER SERVER DESCRIPTION HERE"
-
 
 ##################################
 # Main                           #
