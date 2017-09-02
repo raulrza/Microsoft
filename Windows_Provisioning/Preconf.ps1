@@ -36,7 +36,32 @@ Input:
 Output:
     This script will create a folder named after the Server Name that will contain a
     postconf.txt file in CSV format will all the pertinent variables for Postconf.	
-	
+
+.PARAMETER $DNS1
+This variable needs to be set before running the script!
+# CHANGE TO YOUR PRIMARY DNS SERVERS
+Example: $DNS1 = "4.4.4.4"
+
+.PARAMETER $DNS2
+This variable needs to be set before running the script!
+# CHANGE TO YOUR PRIMARY DNS SERVERS
+Example: $DNS2 = "8.8.8.8"
+
+.PARAMETER $ServerOU
+This variable needs to be set before running the script!
+# CHANGE TO YOUR ACTIVE DIRECTORY PATH
+$ServerOU = "OU=YOURSERVEROU,DC=YOURDOMAIN,DC=COM"
+
+.PARAMETER $AdminOU
+This variable needs to be set before running the script!
+# CHANGE TO YOUR ACTIVE DIRECTORY PATH
+$AdminOU = "OU=YOURADMINOU,DC=YOURDOMAIN,DC=COM"
+
+.PARAMETER $Description
+This variable needs to be set before running the script!
+# CHANGE TO THE DESIRED SERVER DESCRIPTION
+$Description = "ENTER SERVER DESCRIPTION HERE"
+
 #>
 
 Function ScriptMode($Run_Mode) {
