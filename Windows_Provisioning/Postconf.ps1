@@ -83,7 +83,8 @@ Display all of the variables that will be used to configure the server.
     LogOutput Cyan "Prefix: $Prefix"
     LogOutput Cyan "Gateway: $Gateway"
     LogOutput Cyan "Primary DNS: $DNS1"
-    LogOutput Cyan "Secondary DNS: $DNS2`n"
+    LogOutput Cyan "Secondary DNS: $DNS2"
+    LogOutput Cyan "Computer Description: $Description`n"
 
 }
 
@@ -288,9 +289,6 @@ $Gateway = $PostconfVars.Gateway
 $DNS1 = $PostconfVars.DNS1
 $DNS2 = $PostconfVars.DNS2
 $Description = $PostconfVars.Description
-
-# This is the information for the SVR Admins group
-$SVRAdmin = "$ComputerName Admins"
 
 # Identify Network adapter
 $Nic = Get-NetAdapter | where-object {($_.InterfaceDescription -like $NICRegEx)}
