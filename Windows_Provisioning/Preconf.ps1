@@ -232,7 +232,7 @@ $DNS1 = "4.4.4.4"
 $DNS2 = "8.8.8.8"
 
 # AD Variables
-# Get the primary Domain Controller (MCHDC03)
+# Get the primary Domain Controller
 $PDC = Get-ADDomain | Select-Object -ExpandProperty PDCEmulator
 
 # Set path to OU in AD for each account
